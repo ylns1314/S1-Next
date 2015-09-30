@@ -87,4 +87,6 @@ dependencies {
     compile 'com.fasterxml.jackson.core:jackson-databind:2.6.1'
 
     compile 'com.hannesdorfmann:adapterdelegates:1.0.2'
+
+    compile 'com.ibm.icu:icu4j:55.1'
 }
