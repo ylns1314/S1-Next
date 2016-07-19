@@ -1,7 +1,6 @@
 package cl.monsoon.s1next.view.internal;
 
 import android.content.Intent;
-import android.content.res.Resources;
 import android.databinding.DataBindingUtil;
 import android.graphics.Color;
 import android.os.Build;
@@ -54,11 +53,7 @@ public final class DrawerLayoutDelegateConcrete extends DrawerLayoutDelegate
     }
 
     private void setupNavDrawerHeader(DrawerLayout drawerLayout, NavigationView navigationView) {
-        // see https://code.google.com/p/android/issues/detail?id=190226
-        NavigationViewHeaderBinding binding = DataBindingUtil.inflate(
-                mFragmentActivity.getLayoutInflater(), R.layout.navigation_view_header,
-                navigationView, false);
-        navigationView.addHeaderView(binding.getRoot());
+        NavigationViewHeaderBinding binding = DataBindingUtil.bind(navigationView.getHeaderView(0));
         binding.setUserViewModel(mUserViewModel);
 
         // let status bar display over drawer if API >= 21
@@ -69,16 +64,10 @@ public final class DrawerLayoutDelegateConcrete extends DrawerLayoutDelegate
             drawerLayout.setOnApplyWindowInsetsListener((v, insets) -> {
                 int insetsTop = insets.getSystemWindowInsetTop();
 
-                Resources resources = v.getContext().getResources();
-                binding.drawerHeaderBackground.getLayoutParams().height = insetsTop
-                        + resources.getDimensionPixelSize(R.dimen.drawer_top_height);
-                binding.drawerHeaderBackgroundScrim.getLayoutParams().height =
-                        binding.drawerHeaderBackground.getLayoutParams().height;
-
                 ViewGroup.MarginLayoutParams marginLayoutParams = (ViewGroup.MarginLayoutParams)
                         binding.drawerUserAvatar.getLayoutParams();
-                marginLayoutParams.topMargin = insetsTop + resources.getDimensionPixelSize(
-                        R.dimen.drawer_avatar_margin_top);
+                marginLayoutParams.topMargin = insetsTop + v.getContext().getResources()
+                        .getDimensionPixelSize(R.dimen.drawer_avatar_margin_top);
 
                 // see https://github.com/android/platform_frameworks_support/blob/master/v4/api21/android/support/v4/widget/DrawerLayoutCompatApi21.java#L86
                 // add DrawerLayout's default View.OnApplyWindowInsetsListener implementation

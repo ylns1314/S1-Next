@@ -23,7 +23,7 @@ public final class SettingsActivity extends BaseActivity {
 
     public static void startDownloadSettingsActivity(Context context) {
         Intent intent = new Intent(context, SettingsActivity.class);
-        intent.putExtra(SettingsActivity.ARG_SHOW_DOWNLOAD_SETTINGS, true);
+        intent.putExtra(ARG_SHOW_DOWNLOAD_SETTINGS, true);
         context.startActivity(intent);
     }
 
@@ -34,7 +34,7 @@ public final class SettingsActivity extends BaseActivity {
 
         if (savedInstanceState == null) {
             if (getIntent().getBooleanExtra(ARG_SHOW_DOWNLOAD_SETTINGS, false)) {
-                setTitle(R.string.download_settings);
+                setTitle(R.string.pref_downloads);
                 getFragmentManager().beginTransaction().replace(R.id.frame_layout,
                         new DownloadPreferenceFragment()).commit();
             } else {

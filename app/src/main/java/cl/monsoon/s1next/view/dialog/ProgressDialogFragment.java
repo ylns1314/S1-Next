@@ -97,7 +97,7 @@ abstract class ProgressDialogFragment<D> extends DialogFragment {
     private void request() {
         mSubscription = getSourceObservable().subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .finallyDo(this::finallyDo)
+                .doAfterTerminate(this::doAfterTerminate)
                 .subscribe(this::onNext, this::onError);
     }
 
@@ -115,7 +115,7 @@ abstract class ProgressDialogFragment<D> extends DialogFragment {
      * @return Returns {@link S1Service#refreshAuthenticityToken()}'s result if we
      * failed to get authenticity token, otherwise returns {@code func.call(authenticityToken)}.
      */
-    final Observable<ResultWrapper> flatMapedWithAuthenticityToken(Func1<String, Observable<ResultWrapper>> func) {
+    final Observable<ResultWrapper> flatMappedWithAuthenticityToken(Func1<String, Observable<ResultWrapper>> func) {
         String authenticityToken = mUser.getAuthenticityToken();
         if (TextUtils.isEmpty(authenticityToken)) {
             return mS1Service.refreshAuthenticityToken().flatMap(resultWrapper -> {
@@ -147,9 +147,9 @@ abstract class ProgressDialogFragment<D> extends DialogFragment {
     }
 
     /**
-     * @see BaseFragment#finallyDo()
+     * @see BaseFragment#doAfterTerminate()
      */
-    private void finallyDo() {
+    private void doAfterTerminate() {
         dismissAllowingStateLoss();
     }
 

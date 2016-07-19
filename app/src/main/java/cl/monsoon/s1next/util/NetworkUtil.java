@@ -11,7 +11,7 @@ public final class NetworkUtil {
     private NetworkUtil() {}
 
     /**
-     * Checks whether the Wi-Fi network connectivity exists and whtether it is possible to
+     * Checks whether the Wi-Fi network connectivity exists and whether it is possible to
      * establish connections and pass data.
      *
      * @return {@code true} if the Wi-FI network connectivity exists, {@code false} otherwise.
@@ -23,7 +23,7 @@ public final class NetworkUtil {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             Network[] networks = connectivityManager.getAllNetworks();
             if (networks != null) {
-                for (Network network : connectivityManager.getAllNetworks()) {
+                for (Network network : networks) {
                     NetworkInfo networkInfo = connectivityManager.getNetworkInfo(network);
                     if (networkInfo != null &&
                             networkInfo.getType() == ConnectivityManager.TYPE_WIFI

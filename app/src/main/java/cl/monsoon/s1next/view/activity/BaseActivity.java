@@ -6,6 +6,7 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.annotation.CallSuper;
 import android.support.annotation.DrawableRes;
+import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.NavigationView;
@@ -13,12 +14,15 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+
+import java.lang.ref.WeakReference;
 
 import javax.inject.Inject;
 
@@ -30,6 +34,7 @@ import cl.monsoon.s1next.data.event.ThemeChangeEvent;
 import cl.monsoon.s1next.data.pref.DownloadPreferencesManager;
 import cl.monsoon.s1next.data.pref.ThemeManager;
 import cl.monsoon.s1next.util.RxJavaUtil;
+import cl.monsoon.s1next.view.dialog.ThreadGoDialogFragment;
 import cl.monsoon.s1next.view.internal.CoordinatorLayoutAnchorDelegate;
 import cl.monsoon.s1next.view.internal.CoordinatorLayoutAnchorDelegateImpl;
 import cl.monsoon.s1next.view.internal.DrawerLayoutDelegate;
@@ -67,6 +72,8 @@ public abstract class BaseActivity extends AppCompatActivity
     private boolean mDrawerIndicatorEnabled = true;
 
     private CoordinatorLayoutAnchorDelegate mCoordinatorLayoutAnchorDelegate;
+    @Nullable
+    private WeakReference<Snackbar> mSnackbar;
 
     private Subscription mSubscription;
 
@@ -144,6 +151,16 @@ public abstract class BaseActivity extends AppCompatActivity
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // we show thread go menu only if this Activity has drawer
+        if (mDrawerLayoutDelegate != null) {
+            getMenuInflater().inflate(R.menu.thread_go, menu);
+        }
+
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
     @CallSuper
     public boolean onOptionsItemSelected(MenuItem item) {
         // Pass the event to ActionBarDrawerToggle, if it returns
@@ -160,6 +177,11 @@ public abstract class BaseActivity extends AppCompatActivity
                 // so we use finish() to close the current Activity.
                 // looks the newest Google Play does the same way
                 finish();
+
+                return true;
+            case R.id.menu_thread_go:
+                new ThreadGoDialogFragment().show(getSupportFragmentManager(),
+                        ThreadGoDialogFragment.TAG);
 
                 return true;
             default:
@@ -245,23 +267,40 @@ public abstract class BaseActivity extends AppCompatActivity
     }
 
     @Override
-    public final void showShortText(CharSequence text) {
-        mCoordinatorLayoutAnchorDelegate.showShortText(text);
+    public final Optional<Snackbar> showShortText(CharSequence text) {
+        return saveSnackbarWeakReference(mCoordinatorLayoutAnchorDelegate.showShortText(text));
     }
 
     @Override
-    public final void showShortSnackbar(@StringRes int resId) {
-        mCoordinatorLayoutAnchorDelegate.showShortSnackbar(resId);
+    public final Optional<Snackbar> showShortSnackbar(@StringRes int resId) {
+        return saveSnackbarWeakReference(mCoordinatorLayoutAnchorDelegate.showShortSnackbar(resId));
     }
 
     @Override
-    public void showShortSnackbar(CharSequence text) {
-        mCoordinatorLayoutAnchorDelegate.showShortSnackbar(text);
+    public Optional<Snackbar> showShortSnackbar(CharSequence text) {
+        return saveSnackbarWeakReference(mCoordinatorLayoutAnchorDelegate.showShortSnackbar(text));
     }
 
     @Override
     public final Optional<Snackbar> showLongSnackbarIfVisible(CharSequence text, @StringRes int actionResId, View.OnClickListener onClickListener) {
-        return mCoordinatorLayoutAnchorDelegate.showLongSnackbarIfVisible(text, actionResId,
-                onClickListener);
+        return saveSnackbarWeakReference(mCoordinatorLayoutAnchorDelegate.showShortSnackbar(text));
+    }
+
+    @Override
+    public final void dismissSnackbarIfExist() {
+        if (mSnackbar != null) {
+            Snackbar snackbar = mSnackbar.get();
+            if (snackbar != null && snackbar.isShownOrQueued()) {
+                snackbar.dismiss();
+            }
+            mSnackbar = null;
+        }
+    }
+
+    private Optional<Snackbar> saveSnackbarWeakReference(Optional<Snackbar> snackbar) {
+        if (snackbar.isPresent()) {
+            mSnackbar = new WeakReference<>(snackbar.get());
+        }
+        return snackbar;
     }
 }

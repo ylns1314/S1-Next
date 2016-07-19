@@ -47,7 +47,7 @@ public final class GlideImageGetter
     /**
      * Weak {@link java.util.HashSet}.
      */
-    private final Set<ViewTarget> mViewTargetSet = Collections.newSetFromMap(new WeakHashMap<>());
+    private final Set<ViewTarget<TextView, GlideDrawable>> mViewTargetSet = Collections.newSetFromMap(new WeakHashMap<>());
 
     public GlideImageGetter(Context context, TextView textView) {
         this.mContext = context;
@@ -69,12 +69,11 @@ public final class GlideImageGetter
     @Override
     public Drawable getDrawable(String url) {
         UrlDrawable urlDrawable = new UrlDrawable();
-        ImageGetterViewTarget imageGetterViewTarget = new ImageGetterViewTarget(mTextView,
-                urlDrawable);
-        mViewTargetSet.add(imageGetterViewTarget);
 
         // url has no domain if it comes from server.
         if (!URLUtil.isNetworkUrl(url)) {
+            ImageGetterViewTarget imageGetterViewTarget = new ImageGetterViewTarget(mTextView,
+                    urlDrawable);
             // We may have this image in assets if this is emoticon.
             if (url.startsWith(Api.URL_EMOTICON_IMAGE_PREFIX)) {
                 String emoticonFileName = url.substring(Api.URL_EMOTICON_IMAGE_PREFIX.length());
@@ -114,16 +113,20 @@ public final class GlideImageGetter
                         .into(imageGetterViewTarget);
             }
 
+            mViewTargetSet.add(imageGetterViewTarget);
             return urlDrawable;
         }
 
         if (App.getAppComponent(mContext).getDownloadPreferencesManager().isImagesDownload()) {
+            ImageGetterViewTarget imageGetterViewTarget = new ImageGetterViewTarget(mTextView,
+                    urlDrawable);
             Glide.with(mContext)
                     .load(url)
                     .diskCacheStrategy(DiskCacheStrategy.SOURCE)
                     .transform(new TransformationUtil.GlMaxTextureSizeBitmapTransformation(mContext))
-                    .into(new ImageGetterViewTarget(mTextView, urlDrawable));
+                    .into(imageGetterViewTarget);
 
+            mViewTargetSet.add(imageGetterViewTarget);
             return urlDrawable;
         } else {
             return null;
@@ -136,7 +139,7 @@ public final class GlideImageGetter
     @Override
     public void onViewDetachedFromWindow(View v) {
         // cancels any pending images loading
-        for (ViewTarget viewTarget : mViewTargetSet) {
+        for (ViewTarget<TextView, GlideDrawable> viewTarget : mViewTargetSet) {
             Glide.clear(viewTarget);
         }
         mViewTargetSet.clear();
@@ -193,12 +196,18 @@ public final class GlideImageGetter
             mDrawable.setDrawable(resource);
 
             if (resource.isAnimated()) {
-                // set callback to drawable in order to
-                // signal its container to be redrawn
-                // to show the animated GIF
-                mDrawable.setCallback((Drawable.Callback) textView.getTag(R.id.tag_drawable_callback));
-                resource.setLoopCount(GlideDrawable.LOOP_FOREVER);
-                resource.start();
+                Drawable.Callback callback = (Drawable.Callback) textView.getTag(
+                        R.id.tag_drawable_callback);
+                // note: not sure whether callback would be null sometimes
+                // when this Drawable' host view is detached from View
+                if (callback != null) {
+                    // set callback to drawable in order to
+                    // signal its container to be redrawn
+                    // to show the animated GIF
+                    mDrawable.setCallback(callback);
+                    resource.setLoopCount(GlideDrawable.LOOP_FOREVER);
+                    resource.start();
+                }
             } else {
                 textView.setTag(R.id.tag_drawable_callback, null);
             }

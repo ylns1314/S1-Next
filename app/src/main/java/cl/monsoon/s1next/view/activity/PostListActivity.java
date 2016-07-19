@@ -37,13 +37,17 @@ public final class PostListActivity extends BaseActivity
     }
 
     public static void startPostListActivity(Activity activity, ThreadLink threadLink) {
-        Intent intent = new Intent(activity, PostListActivity.class);
-        intent.putExtra(ARG_THREAD_LINK, threadLink);
-        intent.putExtra(ARG_COME_FROM_OTHER_APP, !activity.getPackageName().equals(
+        startPostListActivity(activity, threadLink, !activity.getPackageName().equals(
                 // see android.text.style.URLSpan#onClick(View)
                 activity.getIntent().getStringExtra(Browser.EXTRA_APPLICATION_ID)));
+    }
 
-        activity.startActivity(intent);
+    public static void startPostListActivity(Context context, ThreadLink threadLink, boolean comeFromOtherApp) {
+        Intent intent = new Intent(context, PostListActivity.class);
+        intent.putExtra(ARG_THREAD_LINK, threadLink);
+        intent.putExtra(ARG_COME_FROM_OTHER_APP, comeFromOtherApp);
+
+        context.startActivity(intent);
     }
 
     @Override
@@ -72,7 +76,7 @@ public final class PostListActivity extends BaseActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                if (getIntent().getBooleanExtra(PostListActivity.ARG_COME_FROM_OTHER_APP, false)) {
+                if (getIntent().getBooleanExtra(ARG_COME_FROM_OTHER_APP, false)) {
                     // this activity is not part of this app's task
                     // so create a new task when navigating up
                     TaskStackBuilder.create(this)

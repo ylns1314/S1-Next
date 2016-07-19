@@ -16,19 +16,15 @@
 #   public *;
 #}
 
-# Android Support Library
--keep public class android.support.v7.widget.LinearLayoutManager { *; }
--keep public class android.support.v7.preference.** { public <init>(...); }
--keep public class android.support.v14.preference.** { public <init>(...); }
-
 # Guava
-# https://github.com/google/guava/wiki/UsingProGuardWithGuava
--dontwarn sun.misc.Unsafe
--dontwarn com.google.common.collect.MinMaxPriorityQueue
+-dontwarn com.google.common.**
 
 # Jackson databind
 -keep public class cl.monsoon.s1next.data.api.model.** { *; }
 
+-dontwarn java.nio.file.Paths
+-dontwarn java.beans.Transient
+-dontwarn java.beans.ConstructorProperties
 -dontwarn com.fasterxml.jackson.databind.ext.DOMSerializer
 -keepnames class com.fasterxml.jackson.** { *; }
 
@@ -38,6 +34,9 @@
 -dontwarn java.nio.file.Path
 -dontwarn java.nio.file.OpenOption
 -dontwarn org.codehaus.mojo.animal_sniffer.IgnoreJRERequirement
+
+# OkHttp 3
+-dontwarn okhttp3.internal.huc.HttpsURLConnectionImpl
 
 # Glide
 # https://github.com/bumptech/glide#user-content-proguard
@@ -53,14 +52,17 @@
 
 # Retrofit
 -keepattributes Signature
--dontwarn retrofit.Platform$Java8
+-dontwarn retrofit2.Platform$Java8
 
 # RxJava
+-dontwarn sun.misc.Unsafe
 -keepclassmembers class rx.internal.util.unsafe.*ArrayQueue*Field* {
    long producerIndex;
    long consumerIndex;
 }
 -keepclassmembers class rx.internal.util.unsafe.BaseLinkedQueueProducerNodeRef {
-   long producerNode;
-   long consumerNode;
+    rx.internal.util.atomic.LinkedQueueNode producerNode;
+}
+-keepclassmembers class rx.internal.util.unsafe.BaseLinkedQueueConsumerNodeRef {
+    rx.internal.util.atomic.LinkedQueueNode consumerNode;
 }

@@ -7,7 +7,6 @@ import android.os.StrictMode;
 
 import com.bugsnag.android.Bugsnag;
 import com.squareup.leakcanary.LeakCanary;
-import com.squareup.okhttp.OkHttpClient;
 
 import javax.inject.Singleton;
 
@@ -31,6 +30,7 @@ import cl.monsoon.s1next.widget.AppActivityLifecycleCallbacks;
 import cl.monsoon.s1next.widget.EventBus;
 import cl.monsoon.s1next.widget.WifiBroadcastReceiver;
 import dagger.Component;
+import okhttp3.OkHttpClient;
 
 public final class App extends Application {
 

@@ -57,7 +57,7 @@ public final class ThreadListFragment extends BaseViewPagerFragment
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.fragment_thread, menu);
 
-        menu.findItem(R.id.menu_page_turning).setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
+        menu.findItem(R.id.menu_page_jump).setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
     }
 
     @Override
@@ -65,7 +65,7 @@ public final class ThreadListFragment extends BaseViewPagerFragment
         switch (item.getItemId()) {
             case R.id.menu_browser:
                 IntentUtil.startViewIntentExcludeOurApp(getContext(), Uri.parse(
-                        Api.getThreadListUrlForBrowser(mForumId, getCurrentPage())));
+                        Api.getThreadListUrlForBrowser(mForumId, getCurrentPage() + 1)));
 
                 return true;
             default:

@@ -1,7 +1,6 @@
 package cl.monsoon.s1next.widget;
 
 import android.content.res.Resources;
-import android.os.Looper;
 import android.util.LruCache;
 
 import com.bumptech.glide.Priority;
@@ -12,11 +11,6 @@ import com.bumptech.glide.load.model.GlideUrl;
 import com.bumptech.glide.util.ContentLengthInputStream;
 import com.bumptech.glide.util.Util;
 import com.google.common.io.Closeables;
-import com.squareup.okhttp.Call;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
-import com.squareup.okhttp.ResponseBody;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,9 +24,12 @@ import cl.monsoon.s1next.BuildConfig;
 import cl.monsoon.s1next.R;
 import cl.monsoon.s1next.data.api.Api;
 import cl.monsoon.s1next.data.pref.DownloadPreferencesManager;
+import okhttp3.Call;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
 
-import static com.squareup.okhttp.internal.http.StatusLine.HTTP_PERM_REDIRECT;
-import static com.squareup.okhttp.internal.http.StatusLine.HTTP_TEMP_REDIRECT;
 import static java.net.HttpURLConnection.HTTP_BAD_METHOD;
 import static java.net.HttpURLConnection.HTTP_GONE;
 import static java.net.HttpURLConnection.HTTP_MOVED_PERM;
@@ -44,6 +41,8 @@ import static java.net.HttpURLConnection.HTTP_NOT_IMPLEMENTED;
 import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
 import static java.net.HttpURLConnection.HTTP_OK;
 import static java.net.HttpURLConnection.HTTP_REQ_TOO_LONG;
+import static okhttp3.internal.http.StatusLine.HTTP_PERM_REDIRECT;
+import static okhttp3.internal.http.StatusLine.HTTP_TEMP_REDIRECT;
 
 
 /**
@@ -127,17 +126,13 @@ final class OkHttpStreamFetcher implements DataFetcher<InputStream> {
     @Override
     public void cancel() {
         if (mCall != null) {
-            if (Looper.myLooper() == Looper.getMainLooper()) {
-                mOkHttpClient.getDispatcher().getExecutorService().execute(mCall::cancel);
-            } else {
-                mCall.cancel();
-            }
+            mCall.cancel();
             mCall = null;
         }
     }
 
     /**
-     * Forked form {@link com.squareup.okhttp.internal.http.CacheStrategy#isCacheable(Response, Request)}.
+     * Forked form {@link okhttp3.internal.http.CacheStrategy#isCacheable(Response, Request)}.
      */
     private static boolean isCacheable(Response response) {
         // Always go to network for uncacheable response codes (RFC 7231 section 6.1),
@@ -288,6 +283,7 @@ final class OkHttpStreamFetcher implements DataFetcher<InputStream> {
                 String value = lruCache.get(key);
                 if (value == null) {
                     try {
+                        // TODO: https://github.com/bumptech/glide/pull/798 when Glide 4 was released
                         MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
                         key.updateDiskCacheKey(messageDigest);
                         value = Util.sha256BytesToHex(messageDigest.digest());

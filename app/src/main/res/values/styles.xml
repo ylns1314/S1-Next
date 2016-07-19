@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
 
-    <style name="Preference.Overlay" parent="PreferenceThemeOverlay.v14" />
+    <style name="CardView.Light">
+        <item name="cardBackgroundColor">@color/light_background</item>
+    </style>
+
+    <style name="CardView.Dark">
+        <item name="cardBackgroundColor">@color/dark_card_view</item>
+    </style>
 
     <style name="CardView.Dark.NightMode.Amoled" parent="CardView">
         <item name="cardBackgroundColor">@android:color/black</item>

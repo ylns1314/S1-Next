@@ -125,7 +125,7 @@ public final class PostListFragment extends BaseViewPagerFragment
         }
 
         ((CoordinatorLayoutAnchorDelegate) getActivity()).setupFloatingActionButton(
-                R.drawable.ic_insert_comment_black_24dp, this);
+                R.drawable.ic_insert_comment_white_24dp, this);
     }
 
     @Override
@@ -200,7 +200,7 @@ public final class PostListFragment extends BaseViewPagerFragment
                 return true;
             case R.id.menu_browser:
                 IntentUtil.startViewIntentExcludeOurApp(getContext(), Uri.parse(
-                        Api.getPostListUrlForBrowser(mThreadId, getCurrentPage())));
+                        Api.getPostListUrlForBrowser(mThreadId, getCurrentPage() + 1)));
 
                 return true;
             default:
